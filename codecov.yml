@@ -11,9 +11,6 @@ coverage:
     changes: false
   ignore:
     - "examples/download_preprocess_finance.py"
-    - "celer/celer/datasets/.*"
-    - "celer/datasets/libsvm.py"
-    - "datasets/libsvm.py"
 comment:
   layout: "header, diff, sunburst, uncovered"
 behavior: default

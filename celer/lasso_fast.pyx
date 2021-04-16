@@ -94,6 +94,25 @@ def celer(
             else:
                 inv_lc[j] = 1. / norms_X_col[j] ** 2
 
+        # deal with INFINITY weights: we set the coef to 0 if not already,
+        # because afterwards this feature will be ignored
+        if w[j] != 0 and weights[j] == INFINITY:
+            # Xw holds y - Xw for Lasso, Xw for Logreg...
+            tmp = w[j] if pb == LASSO else -w[j]
+            w[j] = 0
+            # R -= (w_j - old_w_j) * (X[:, j] - X_mean[j])
+            if tmp != 0.:
+                if is_sparse:
+                    for i in range(X_indptr[j], X_indptr[j + 1]):
+                        Xw[X_indices[i]] += tmp * X_data[i]
+                    if center:
+                        X_mean_j = X_mean[j]
+                        for i in range(n_samples):
+                            Xw[i] -= X_mean_j * tmp
+                else:
+                    faxpy(&n_samples, &tmp, &X[0, j], &inc,
+                            &Xw[0], &inc)
+
     cdef floating norm_y2 = fnrm2(&n_samples, &y[0], &inc) ** 2
 
     cdef floating[:] gaps = np.zeros(max_iter, dtype=dtype)
@@ -106,7 +125,10 @@ def celer(
     cdef int[:] all_features = np.arange(n_features, dtype=np.int32)
 
     for t in range(max_iter):
-        if t != 0:
+        # if t != 0:
+        if True:
+            # weights may have changed, hence we can cannot rely on a
+            # previously feasible theta
             create_dual_pt(pb, n_samples, alpha, &theta[0], &Xw[0], &y[0])
 
             scal = dnorm_l1(
@@ -156,7 +178,7 @@ def celer(
         else:
             radius = sqrt(gap / 2.) / alpha
         set_prios(
-            is_sparse, theta, X, X_data, X_indices, X_indptr, norms_X_col,
+            is_sparse, theta, w, X, X_data, X_indices, X_indptr, norms_X_col,
             weights, prios, screened, radius, &n_screened, positive)
 
         if prune:

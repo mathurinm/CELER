@@ -7,6 +7,7 @@ Fast algorithm to solve Lasso-like problems with dual extrapolation. Currently, 
 
 - Lasso
 - weighted Lasso
+- adaptive Lasso (:math:`\ell_{0.5}` penalized least-squares, solved with iterative reweighting/majorization-minimization)
 - Sparse Logistic regression
 - Group Lasso
 - Multitask Lasso.

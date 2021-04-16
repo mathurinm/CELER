@@ -189,7 +189,7 @@ def newton_celer(
             break
 
 
-        set_prios(is_sparse, theta, X, X_data, X_indices, X_indptr,
+        set_prios(is_sparse, theta, w, X, X_data, X_indices, X_indptr,
                   norms_X_col, weights_pen, prios, screened, radius,
                   &n_screened, 0)
 
